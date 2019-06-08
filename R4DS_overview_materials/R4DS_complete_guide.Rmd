@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Data Science Projects: Tidy Workflow Essentials
 
-![R for Data Science - Garrett Grolemund & Hadley Wickham](https://d33wubrfki0l68.cloudfront.net/571b056757d68e6df81a3e3853f54d3c76ad6efc/32d37/diagrams/data-science.png)
+![R for Data Science _Garrett Grolemund & Hadley Wickham_](https://d33wubrfki0l68.cloudfront.net/571b056757d68e6df81a3e3853f54d3c76ad6efc/32d37/diagrams/data-science.png)
 
 ### What is Tidy Data?
 
@@ -73,12 +73,131 @@ library(gapminder)
 library(Lahman)
 ```
 
+**Datasets**
+
+mpg contains observations collected by the US Environmental Protection Agency on 38 models of car
+```{r}
+mpg
+```
+ 
+## Getting Started
+
+ADD IN INFORMATION ON PIPING MAGRITRR!!!!
+
 ## Wrangle: Tidy + Transform
 
+All this talk of wrangling - how do I know what to wrangle!?
 
+### Exploration
+
+Inspect data --> Generate hypotheses --> Spot visualization opportunties --> Tidy + Transform --> Exploratory Analyses --> Repeat
+
+#### Visualization
+
+**ggplot2**
+
+ADD IN info on GGplot
+
+Resources
+  - [The Layered Grammar of Graphics _Leland Wilkinson_](The Layered Grammar of Graphics)
+  - [R Graphics Cookbook _Winston Chang_](http://www.cookbook-r.com/Graphs/)
+
+**Always starts with ggplot() fxn**
+
+ggplot()
+
+- Creates a coordinate system that you can add layers to
+
+**Layers**
+
+- Use various funcitons to add _layers_ and complete your plot
+    + These are the graphical visualizations of your data
+    + For example, geom_line adds a layer of lines to your place, creating a linegrph of your data
+    + Different geom fxns = different layers = different plots
+    
+**mapping argument**
+
+- Connecting variables to visual properties of graph
+    + Can be specified in each geom function OR in ggplot function
+- Always paired with aes() function
+    + arguements x and y specify which variables to map to the x and y axes
+    
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+str(mpg)
+mpg %>% 
+  ggplot(aes(x = displ,y = hwy)) + 
+  geom_point()
+```
+
+ggplot + geom is our template
+
+```{r}
+mpg %>% 
+  ggplot(aes(x = displ,y = hwy)) + 
+  geom_point()
+
+mpg %>% 
+  ggplot(aes(x = displ,y = hwy)) + 
+  geom_line() 
+```
+
+**but what happened to the pipes?**
+
+In short: 
+ 
+- For %>% we are passing values from the left into a function on the right. For + in ggplot we are adding elements to a plot. Conceptually this is not the same as passing previous elements of a plot into a geom function.
+
+[Hadley with the dets](https://community.rstudio.com/t/why-cant-ggplot2-use/4372/7)
+
+#### You Try
+
+ADD IN EXERCISE
+
+- scatter plot of x vs y
+- not so informative scatter plot for an x - y with a categorical variable
+- plots for two categorical variables
+    + geom_count
+    + geom_tile
+
+THINGS TO MENTION:
+
+- The ggplot() function creates the background of the plot, but since no layers were specified with geom function, nothing is drawn.
+- glimpse() vs nrow/ncol
+- A scatter plot is not a useful display of these variables since both drv and class are categorical variables. Since categorical variables typically take a small number of values, there are a limited number of unique combinations of (x, y) values that can be displayed.
+    + A simple scatter plot does not show how many observations there are for each (x, y) value. As such, scatterplots work best for plotting a continuous x and a continuous y variable, and when all (x, y) values are unique.
+    
+THINGS TO REVIEW:
+
+geom_count
+
+- which is similar to a scatterplot but uses the size of the points to show the number of observations at an (x, y) point
+
+```{r}
+ggplot(mpg, aes(x = class, y = drv)) +
+  geom_count()
+```
+
+geom_tile and complete()
+```{r}
+mpg %>%
+  count(class, drv) %>%
+  complete(class, drv, fill = list(n = 0L)) %>%
+  ggplot(aes(x = class, y = drv)) +
+  geom_tile(mapping = aes(fill = n))
+```
+
+The complete() function in the tidyr package adds new rows to a data frame for missing combinations of columns. 
+
+
+LEFT OFF AT 3.3
+  
+  
 ### Filter funs
 
-filter_at, filter_if
+
 
 ```{r cars}
 summary(cars)
