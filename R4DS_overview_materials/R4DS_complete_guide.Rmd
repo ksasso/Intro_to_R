@@ -88,11 +88,11 @@ ADD IN INFORMATION ON PIPING MAGRITRR!!!!
 
 All this talk of wrangling - how do I know what to wrangle!?
 
-### Exploration
+**Exploration**
 
 Inspect data --> Generate hypotheses --> Spot visualization opportunties --> Tidy + Transform --> Exploratory Analyses --> Repeat
 
-#### Visualization
+### Visualization
 
 **ggplot2**
 
@@ -169,12 +169,6 @@ THINGS TO MENTION:
 - A scatter plot is not a useful display of these variables since both drv and class are categorical variables. Since categorical variables typically take a small number of values, there are a limited number of unique combinations of (x, y) values that can be displayed.
     + A simple scatter plot does not show how many observations there are for each (x, y) value. As such, scatterplots work best for plotting a continuous x and a continuous y variable, and when all (x, y) values are unique.
     
-THINGS TO REVIEW:
-
-geom_count
-
-- which is similar to a scatterplot but uses the size of the points to show the number of observations at an (x, y) point
-
 ```{r}
 ggplot(mpg, aes(x = class, y = drv)) +
   geom_count()
@@ -191,14 +185,165 @@ mpg %>%
 
 The complete() function in the tidyr package adds new rows to a data frame for missing combinations of columns. 
 
+#### More on the Aesthetic Mappings 
 
-LEFT OFF AT 3.3
-  
-  
-### Filter funs
+ADD IN EXERCISE
 
+- Using aes to explain outliers or unusual patterns 
 
-
-```{r cars}
-summary(cars)
+```{r}
+mpg %>% 
+  ggplot(mapping = aes(x = displ, y = hwy, color = displ < 5)) +
+  geom_point()
 ```
+ 
+
+**mapping variables to an aesthetic**
+
+You can add a third variable, like class, to a two dimensional scatterplot by mapping it to an aesthetic. _An aesthetic is a visual property of the objects in your plot_. Aesthetics include things like the size, the shape, or the color of your points.
+
+**Aesthetic  = mapping between a variable and a value**
+
+- _use aes() to associate the name of the aesthetic with a variable to display_
+    + x and y locations of points are themsevles aesthetics  or visual properties that you can map to variables to display info about the data 
+    + Adds legends to explain the mappings between locations/aesthetics and values
+    + For x and y, the axeses lines act as legends to explain the mapping between locations and values 
+- You can display a point (like the one below) in different ways by changing the values of its aesthetic properties. Since we already use the word “value” to describe data, let’s use the word “level” to describe aesthetic properties. 
+
+```{r}
+mpg %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+- ggplot2 will automatically assign a unique level of the aesthetic (here a unique color) to each unique value of the variable, _a process known as scaling_
+- ggplot2 will also add a legend that explains which levels correspond to which values
+
+Could've easily changed this aes to be about size vs color 
+
+
+```{r}
+mpg %>% 
+  ggplot() +
+  geom_point(aes(x = displ, y = hwy, size = class))
+```
+
+- In this case, the exact size of each point would reveal its class affiliation. 
+- Need ot find the right aesthetic for the right variable
+
+ADD IN EXAMPLES OF AESTHETICS NOT MAKING SENSE 
+
+```{r}
+mpg %>% 
+  ggplot() +
+  geom_point(aes(x = displ, y = hwy, alpha = class))
+
+mpg %>% 
+  ggplot() +
+  geom_point(aes(x = displ, y = hwy, shape = class))
+```
+
+Good aes() options for 3rd variables:
+
+- Good for categorical 
+    + shape = (as a number, denoting type of point. search point shapes in ggplot2 for options)
+- Good for categorical or continuous variables:
+    + color = (character string of color or HEX code, "#66CC99"). If continuous the continuous variable uses a scale that will vary from light to dark for the color of your choice
+- Good for continuous or ordered variables
+    + size = (numeric, of a point in mm)
+    + alpha = (numeric between new alpha level in [0,1]. If alpha is NA, existing alpha values are preserved.)
+
+_Note_: ggplot2 will only use six shapes at a time. By default, additional groups will go unplotted when you use the shape aesthetic.
+
+R has 25 built in shapes that are identified by numbers
+
+![Shapes in R](https://d33wubrfki0l68.cloudfront.net/2705b59d57362a103f0dad04b0ccfdeff9a101d2/3dc1b/visualize_files/figure-html/shapes-1.png)
+
+There are some seeming duplicates: for example, 0, 15, and 22 are all squares. The difference comes from the interaction of the colour and fill aesthetics. The hollow shapes (0–14) have a border determined by colour; the solid shapes (15–18) are filled with colour; the filled shapes (21–24) have _a border of colour and are filled with fill_
+
+Note that shapes 21-24 have both stroke colour and a fill. _The size of the filled part is controlled by size, the size of the stroke is controlled by stroke_. Each is measured in mm, and the total size of the point is the sum of the two. Note that the size is constant along the diagonal in the following figure.
+
+BORDER = COLOR
+    + size of the color/border controlled by stroke
+INSIDE = FILL
+    + size of fill controlled by size
+    
+```{r}
+mpg %>% 
+  ggplot(mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = cty)) +
+  scale_colour_gradient(low = "darkolivegreen1", high = "darkolivegreen")
+
+# remember BORDER = COLOR = STROK
+    #INSIDE = FILL = SIZE
+
+```
+
+ Stroke changes the size of the border for shapes (21-25). These are filled shapes in which the color and size of the border can differ from that of the filled interior of the shape.
+ 
+```{r}
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point(shape = 21, colour = "black", fill = "white", size = 5, stroke = 5)
+```
+ 
+
+**We can also set an aesthetic manually to have a particular appearance, as opposed to reflecting information about a variable. When this is done the particular aesthetic we wish to manipulate gets set by name as an argument of your _geom_ function _outside_ of the aes() function**
+
+The argument colour = "blue" is included within the mapping argument, and as such, it is treated as an aesthetic, which is a mapping between a variable and a value. In the expression, colour = "blue", "blue" is interpreted as a categorical variable which only takes a single value "blue". If this is confusing, consider how colour = 1:234 and colour = 1 are interpreted by aes().
+
+```{r}
+mpg %>% 
+  ggplot() +
+  geom_point(aes(x = displ, y = hwy), shape = 0)
+
+mpg %>% 
+  ggplot() +
+  geom_point(aes(x = displ, y = hwy), shape = 22, color = 'blue', fill = 'yellow')
+
+mpg %>% 
+  ggplot() +
+  geom_point(aes(x = displ, y = hwy), color = 'blue')
+```
+
+#### You Try
+
+ADD IN EXERCISE
+
+- behavior of aesthetics for categorical vs continuous variables 
+    + Instead of using discrete colors, the continuous variable uses a scale that varies from a light to dark blue color.
+    + When mapped to size, the sizes of the points vary continuously as a function of their size.
+    + Can't use with shape
+- stroke to control color (border) size and size to control fill (inside) size
+
+Note that shapes 21-24 have both stroke colour and a fill. The size of the filled part is controlled by size, the size of the stroke is controlled by stroke. Each is measured in mm, and the total size of the point is the sum of the two. Note that the size is constant along the diagonal in the following figure.
+
+```{r}
+sizes <- expand.grid(size = (0:3) * 2, stroke = (0:3) * 2)
+ggplot(sizes, aes(size, stroke, size = size, stroke = stroke)) + 
+  geom_abline(slope = -1, intercept = 6, colour = "white", size = 6) + 
+  geom_point(shape = 21, fill = "red") +
+  scale_size_identity()
+```
+
+- MAKE OUTLIERS CERTAIN COLOR 
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, colour = displ < 5)) +
+  geom_point()
+
+```
+
+
+**Aesthetics can also be mapped to expressions like displ < 5**. _The ggplot() function behaves as if a temporary variable was added to the data with with values equal to the result of the expression_. In this case, the result of displ < 5 is a logical variable which takes values of TRUE or FALSE.
+
+This also explains why, in Exercise 3.3.1, the expression colour = "blue" created a categorical variable with only one category: “blue”.
+
+- Mapping a single variable to multiple aesthetics is redundant. Because it is redundant information, in most cases avoid mapping a single variable to multiple aesthetics.
+
+#### Common Problems
+
+LEFT OFF ON 3.4 COMMON PROBLEMS 
+
+LEFT OFF GET THROUGH WORKFLOW BASICS TODAY 
+
+
