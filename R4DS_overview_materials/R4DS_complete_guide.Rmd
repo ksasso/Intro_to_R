@@ -237,7 +237,6 @@ ADD IN EXAMPLES OF AESTHETICS NOT MAKING SENSE
 mpg %>% 
   ggplot() +
   geom_point(aes(x = displ, y = hwy, alpha = class))
-
 mpg %>% 
   ggplot() +
   geom_point(aes(x = displ, y = hwy, shape = class))
@@ -263,9 +262,9 @@ There are some seeming duplicates: for example, 0, 15, and 22 are all squares. T
 
 Note that shapes 21-24 have both stroke colour and a fill. _The size of the filled part is controlled by size, the size of the stroke is controlled by stroke_. Each is measured in mm, and the total size of the point is the sum of the two. Note that the size is constant along the diagonal in the following figure.
 
-BORDER = COLOR
+BORDER = COLOR (stroke)
     + size of the color/border controlled by stroke
-INSIDE = FILL
+INSIDE = FILL (size)
     + size of fill controlled by size
     
 ```{r}
@@ -273,10 +272,8 @@ mpg %>%
   ggplot(mapping = aes(x = displ, y = hwy)) +
   geom_point(mapping = aes(color = cty)) +
   scale_colour_gradient(low = "darkolivegreen1", high = "darkolivegreen")
-
 # remember BORDER = COLOR = STROK
     #INSIDE = FILL = SIZE
-
 ```
 
  Stroke changes the size of the border for shapes (21-25). These are filled shapes in which the color and size of the border can differ from that of the filled interior of the shape.
@@ -295,11 +292,9 @@ The argument colour = "blue" is included within the mapping argument, and as suc
 mpg %>% 
   ggplot() +
   geom_point(aes(x = displ, y = hwy), shape = 0)
-
 mpg %>% 
   ggplot() +
   geom_point(aes(x = displ, y = hwy), shape = 22, color = 'blue', fill = 'yellow')
-
 mpg %>% 
   ggplot() +
   geom_point(aes(x = displ, y = hwy), color = 'blue')
@@ -330,7 +325,6 @@ ggplot(sizes, aes(size, stroke, size = size, stroke = stroke)) +
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy, colour = displ < 5)) +
   geom_point()
-
 ```
 
 
@@ -338,12 +332,121 @@ ggplot(mpg, aes(x = displ, y = hwy, colour = displ < 5)) +
 
 This also explains why, in Exercise 3.3.1, the expression colour = "blue" created a categorical variable with only one category: “blue”.
 
+We can do this at various points. Remember geom function will inheret aes mappings unless we specify otherwise 
+
+```{r}
+ggplot(data = mpg, mapping = aes(displ, hwy)) +
+  geom_point(data= filter(mpg, cyl > 4), 
+             aes(displ, hwy, color = manufacturer),
+             inherit.aes = FALSE) +
+  geom_point(data = filter(mpg, cyl == 4), 
+             aes(displ, hwy), color = "grey",
+             inherit.aes = FALSE )
+```
+
+
 - Mapping a single variable to multiple aesthetics is redundant. Because it is redundant information, in most cases avoid mapping a single variable to multiple aesthetics.
 
 #### Common Problems
 
-LEFT OFF ON 3.4 COMMON PROBLEMS 
 
-LEFT OFF GET THROUGH WORKFLOW BASICS TODAY 
++ sign in right place. Has to come at the end of the line not the start
+
+#### Facets
+
+facet_wrap 
+    + single variable facet_wrap(~var)
+
+To facet your plot on the combination of two variables, add facet_grid() to your plot call.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+If you prefer to not facet in the rows or columns dimension, use a . instead of a variable name, e.g. + facet_grid(cyl ~ .) will facet on the y-axis to create rows for cyl 
+
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(cyl ~ .)
+
+## if you want facets to appear as rows not columns
+```
+
+#### YOU TRY
+
+ADD IN EXERCISE
+
+THINGS TO MENTION:
+
+Using facet_wrap with two variables to create 1 facet per combination. combine with labeller
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(c("cyl", "drv"), labeller = "label_both")
+
+### TREATED THEM AS TWO FACETS 
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_grid(cyl ~ drv, labeller = "label_both")
+```
+
+**When using facet_grid() you should usually put the variable with more unique levels in the columns. Why?**
+There will be more space for columns if the plot is laid out horizontally (landscape).
+
+It is difficult to handle overlapping points with color. Jittering will still work with color. But jittering will only work well if there are few points and the classes do not overlap much, otherwise, the colors of areas will no longer be distinct, and it will be hard to pick out the patterns of different categories visually. Transparency (alpha) does not work well with colors since the mixing of overlapping transparent colors will no longer represent the colors of the categories. Binning methods use already color to encode density, so color cannot be used to encode categories.
+
+#### geometric objects 3.6
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(aes(x = displ, y = hwy))
+```
+
+Using line type for cateogircal variables 
+
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+**Layering geoms**
+
+```{r}
+ggplot(mpg) + 
+  geom_smooth(aes(displ, hwy, linetype  = drv, color = drv)) +
+  geom_point(aes(displ, hwy, color = drv),
+             inherit.aes = FALSE)
+
+## could've' dropped inherit.aes ? because actually if I kept them all it'd be fine?? surprised that worked
+```
+
+**Error: ggplot2 doesn't know how to deal with data of class uneval** 
+ggplot can't interpert the argument value appropriately
+
+Geometric objects for representing the data
+
+- To change the geom in your plot, change the geom function that you add to ggplot()
+    + not every aesthetic works with every geom
+
+ggplot2 provides over 30 geoms, and extension packages provide even more (see https://www.ggplot2-exts.org for a sampling). 
+
+
+LEFT OFF ON GROUPING AESTHTIC in 3.6
+**GROUPING AESTHETIC**
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+```
+
+
+geom_jitter
+
 
 
