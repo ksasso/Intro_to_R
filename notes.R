@@ -20,8 +20,10 @@
         # SECTION 3.3 Good aes() options for 3rd variables - DIFFERENT AESTHETICS 
             # #5) STROKE AESTHETIC
         #fct_reorder
-    # stroke aesthetic works with geom_point shapes that have EITHER
-    # a border(color = stroke), or inside color (fill = size )
+        # LESS USED GEOMS !!! DO PLOTS WITH THEM
+        # stroke aesthetic works with geom_point shapes that have EITHER
+        # a border(color = stroke), or inside color (fill = size )
+
     
   
     
@@ -58,32 +60,55 @@
 ?facet_grid # more than 1 variable. drv ~ cyl  -- ROWS ~ COLUMNS (BY Y ~ BY X)  - use . to manage how facets appear (r vs col)
 ?facet_wrap # 1 variable (~ var) OR TWO facet_wrap(c("cyl", "drv"), labeller = "label_both") TO CREATE ONE FACET PER COMBO
 geom_smooth(mapping = aes(x = displ, y = hwy, group = drv)) # group aesthetic!!
+show.legend = FALSE # ARGUMENT OT GEOMS to not show legend for gouping
+?geom_jitter # The jitter geom is a convenient shortcut for 
+#geom_point(position = "jitter"). 
+#It adds a small amount of random variation to the location of each point, 
+#and is a useful way of handling overplotting caused by discreteness in smaller datasets.
+?geom_area
+?geom_col# heights of bars = VALUES  in the data, vs geom_bar height = number of cases in each group 
+?stat_count #learn which stat a geom uses by looking at default value for stat argument
+#This works because every geom has a default stat; and every stat has a default geom. 
+## LOOK AT HELP SECTION FOR COMPUTED VARIABLES OF EACH 
+# TO SWITHC TO DIFFERENT ON COMPUTED
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+?stat_summary # summarises y values at unique binned x. REVIEW EXAMPLES
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+
 
 
 
 ##################################### QUESTIONS FOR EZGI 
 ###################################
 
+# KNOW AES FROM GGPLOT IS INHERITED.. WHAT ABOUT DATA?
+
+# in order for local data argument in geom to override global data argument
+# need to specify this is the data argument
+
+# DOES NOT WORK 
 ggplot(mpg) + 
   geom_smooth(aes(displ, hwy, linetype  = drv, color = drv)) +
   geom_point(mpg, aes(displ, hwy, color = drv),
              inherit.aes = FALSE)
 
-#BUT THIS WORKS
-ggplot(mpg) + 
-  geom_smooth(aes(displ, hwy, linetype  = drv, color = drv)) +
-  geom_point(aes(displ, hwy, color = drv),
-             inherit.aes = FALSE)
- #OR 
+ #DOES
 ggplot(mpg) + 
   geom_smooth(aes(displ, hwy, linetype  = drv, color = drv)) +
   geom_point(data = mpg, aes(displ, hwy, color = drv),
              inherit.aes = FALSE)
 
-# or surprisingyl this 
-ggplot(mpg) + 
-  geom_smooth(aes(displ, hwy, linetype  = drv, color = drv)) +
-  geom_point(aes(displ, hwy, color = drv))
+## why do I need to use group == 1
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+
 
 ## could've' dropped inherit.aes ? because actually if I kept them all it'd be fine?? surprised that worked
 
