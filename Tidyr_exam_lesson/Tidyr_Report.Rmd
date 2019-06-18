@@ -1,0 +1,14 @@
+---
+title: "Tidy Data"
+author: "Katie Sasso"
+date: '`r format(Sys.Date(), "%b %d %Y")`'
+output: 
+  html_document
+  toc: true
+  toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

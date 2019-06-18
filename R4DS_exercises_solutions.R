@@ -311,5 +311,46 @@ ggplot(data, aes(x=Year, y=Value, fill=Sector)) +
 ###################################
 
 #1) 
+#pointrange
+ggplot(data = diamonds) + 
+  geom_pointrange(mapping = aes(x = cut, y = depth),
+                  stat = 'summary',
+                  fun.ymin = min, 
+                  fun.ymax = max,
+                  fun.y = median)
+
+#2) Geom col maps vlaues of x onto value of y supplied in the data
+# geom bar uses the stat_count function to calculate a new varaible n
+
+#3)
+ggplot(mpg, aes(displ, 1 / hwy)) + geom_point()
+m + geom_quantile()
+m + geom_quantile(quantiles = 0.5)
+q10 <- seq(0.05, 0.95, by = 0.05)
+m + geom_quantile(quantiles = q10)
+
+#4) 
+?stat_smooth
+ggplot(mpg,aes(cty, hwy)) +
+ # geom_point() +
+  geom_smooth()
+
+#5)
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop..))
+
+################################### 27.2.1
+###################################
+
+#1) 
+
+
+### LEFT OFF 27.3 RMARKDOWN SECTION OF R FOR DATA SCIENCE
+### THEN MAKING USE R POSTER
+### THEN OFF MAKING CONCEPT MAP OF LESSON  (TIDYR)
+### design lesson
+### THEN OFF ON 3.8 POSITION ADJUSTMENTS
 
 
