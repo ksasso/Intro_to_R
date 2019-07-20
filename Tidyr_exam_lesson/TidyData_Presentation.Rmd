@@ -1,0 +1,154 @@
+---
+title: "Tidy Data Lite"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  slidy_presentation:
+    fig_caption: yes
+    theme: cosmo
+    highlihgt: kate
+    fig_height: 6
+    fig_width: 7
+    incremental: yes
+    footer: "Katie Sasso-Schafer"
+    df_print: kable
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE, error = FALSE, warning = FALSE)
+options(dplyr.print_max = 5)
+#devtools::install_github("tidyverse/tidyr")
+#devtools::install_github("chrk623/dataAnim")
+#install.packages('kableExtra')
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+```
+
+
+<style>
+.column-left{
+  float: left;
+  width: 46%;
+  text-align: left;
+}
+</style>
+
+<style>
+.column-right{
+  float: right;
+  width: 46%;
+  text-align: right;
+}
+</style>
+
+## Learner Persona: Julie
+
+- Background
+  + Early career financial audit analyst. Does reporting on financial trends & basic rolling average projections
+  + Tired of having to reformat excel sheets weekly for reports. Does lots of manual, non repeatable manipulation in excel
+  
+- Needs
+  + To improve R skills data maniuplation skills in order to create enhanved projection & reports that take less time & are more reproducible
+  + No more copy and paste!
+  
+- Relevant Experience
+  + Uses excel and ACL (Audit Control Language)
+  + Will occasionally use R at work to fit a regression model, but mostly does her data maniuplation in excel
+  + To jump start her skills has taken R-Ladies Intro to R courses covering
+    - R & RStudio Basics (R Objects, RStudio, Data types & Structures)
+    - Data Wrangling basics (pipes & dplyr: filter, slice, select, mutate, etc.)
+    - Visulation (ggplot2)
+
+- Special Considerations
+  + Has a heavy meeting schedule
+  + Does best visual examples
+ 
+
+## Concept Map
+
+<center><img src="./img/concept_map.png" height="650px" /></center> 
+
+
+## Data Wrangling: Tidying
+
+- Covered in detail in [R for Data Science](http://r4ds.had.co.nz/index.html)
+    + This content adapted from this
+- Tools from the [`tidyverse`](https://www.tidyverse.org/)
+
+ <center><img src="./img/logos_wrangle_all.png" height="400px" /></center>
+
+## What is Tidy Data ?
+
+- **observations** are the **rows**
+- **variables** are the **columns**
+- each **value** has its own **cell**
+
+From _R for Data Science: Tidy Data Chapter_, by Hadley Wickham & Garrett Grolemund
+
+<center><img src="./img/tidy_data.png" height="600px" width="750px" /></center>
+
+## Tidy Data
+
+<center><img src="./img/concept_map.png" height="700px" /></center>
+
+relig_income data[^1]
+
+[^1]:The relig_income dataset comes from a report produced by the Pew Research Center, examining the relationship betweein income and religion in the U.S.
+
+## Why Tidy? 
+
+<div class="column-left">
+Why is this 
+```{r}
+rel
+```
+
+Preferrable to this
+```{r}
+
+```
+</div>
+
+<div class="column-left">
+</div>
+
+## Is this Tidy Data?
+
+PREGNANCY EXAMPLE
+
+## Which one is Tidy?
+
+THIS 
+
+## How do I do it?
+
+PIVOT LONGER PIVOT WIDER
+
+
+## When variable names are columns
+
+Pew dataset
+
+You TRY with billboards 
+
+FADED EXAMPLE 
+
+
+## When XX are XX
+
+Pew dataset
+
+You TRY with billboards
+NO ASSISTANCE 
+
+
+## Quick check: Why won't this work?!
+
+
+
+
+
