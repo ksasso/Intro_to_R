@@ -4,8 +4,6 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output: 
   slidy_presentation:
     fig_caption: yes
-    theme: cosmo
-    highlihgt: kate
     fig_height: 6
     fig_width: 7
     incremental: yes
@@ -16,8 +14,8 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE, error = FALSE, warning = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE, error = FALSE, warning = FALSE,
+                      echo = FALSE)
 options(dplyr.print_max = 5)
 #devtools::install_github("tidyverse/tidyr")
 #devtools::install_github("chrk623/dataAnim")
@@ -48,44 +46,57 @@ library(tidyr)
 ## Learner Persona: Julie
 
 - Background
-  + Early career financial audit analyst. Does reporting on financial trends & basic rolling average projections
-  + Tired of having to reformat excel sheets weekly for reports. Does lots of manual, non repeatable manipulation in excel
-  
-- Needs
-  + To improve R skills data maniuplation skills in order to create enhanved projection & reports that take less time & are more reproducible
-  + No more copy and paste!
+  + Early career financial audit analyst. Does reporting on financial trends & rolling average projections
+  + Bachelor's degree in finance
+  + Tired of having to reformat excel sheets weekly for reports
   
 - Relevant Experience
-  + Uses excel and ACL (Audit Control Language)
-  + Will occasionally use R at work to fit a regression model, but mostly does her data maniuplation in excel
-  + To jump start her skills has taken R-Ladies Intro to R courses covering
-    - R & RStudio Basics (R Objects, RStudio, Data types & Structures)
+  + Has been using excel and ACL (Audit Control Language) daily at work for the past 3 years 
+  + Will occasionally use R at work to make a graph or play with a regression model out, but does most data prep in excel and end reporting always in excel or ppt
+  + Comes to monthly to R-Ladies meetups and has taken R-Ladies Intro to R courses covering
+    - R & RStudio Basics (R Objects, RStudio, Data Types & Structures, Functions & Arguments)
     - Data Wrangling basics (pipes & dplyr: filter, slice, select, mutate, etc.)
-    - Visulation (ggplot2)
-
+    - Visualization & Communication (ggplot2, intro to RMarkdown)
+  
+- Needs
+  + To spend less time cutting/pasting and manually manipulating things in excel to make weekly reports
+    - Would love to just press a button every Monday to generate report
+  + Would like to make nicer charts for weekly sales projections and capture rates
+  + Would love to give her team a dashboard instead of a static report with multiple tables
+  + More accurate sales forecasts than her 8wk avg can achieve
+  
 - Special Considerations
   + Has a heavy meeting schedule
-  + Does best visual examples
+  + Visual learner
  
-
 ## Concept Map
 
 <center><img src="./img/concept_map.png" height="650px" /></center> 
+
+## Data Wrangling: Tidying
+
+- Often data does not come clean
+- We can use tools in R to replace manual manipulations in Excel, like pivot tables
+
+ <center><img src="./img/mtcars_messydataa.jpg" height="400px" /></center> [^messy_data]
+
+[^messy_data]: Image courtesy of @AdamGruer via Twitter
 
 
 ## Data Wrangling: Tidying
 
 - Covered in detail in [R for Data Science](http://r4ds.had.co.nz/index.html)
-    + This content adapted from this
+    + This content adapted from this & [tidyr documentation](https://tidyr.tidyverse.org/dev/articles/pivot.html)
 - Tools from the [`tidyverse`](https://www.tidyverse.org/)
 
- <center><img src="./img/logos_wrangle_all.png" height="400px" /></center>
+ <center><img src="./img/logos_wrangle_all.png" height="400px" width = "750px" /></center>
 
 ## What is Tidy Data ?
 
-- **observations** are the **rows**
-- **variables** are the **columns**
-- each **value** has its own **cell**
+- each **variable** must have its own **column**
+- each **observations** must have its own **row**
+- each **value** must have its own **cell**
+  + Impossible to satisfy 2 of 3 rules
 
 From _R for Data Science: Tidy Data Chapter_, by Hadley Wickham & Garrett Grolemund
 
@@ -95,59 +106,92 @@ From _R for Data Science: Tidy Data Chapter_, by Hadley Wickham & Garrett Grolem
 
 <center><img src="./img/concept_map.png" height="700px" /></center>
 
-relig_income data[^1]
+relig_income data[^relig_income]
 
-[^1]:The relig_income dataset comes from a report produced by the Pew Research Center, examining the relationship betweein income and religion in the U.S.
+[^relig_income]:The relig_income dataset comes from a report produced by the Pew Research Center, examining the relationship between income and religion in the U.S.
 
 ## Why Tidy? 
 
 <div class="column-left">
-Why is this 
-```{r}
-rel
-```
-
-Preferrable to this
-```{r}
-
-```
+Why is this "better"
+<left><img src="./img/relig_income_pivotlonger.png" height="300px" width = "350px"/></left>
 </div>
 
 <div class="column-left">
+Than this:
+<left><img src="./img/relig_income_orig.png" height="300px" width = "450px"/></left>
 </div>
+
+- Consistency in storage = consistency in tools that work
+- Key R functions (i.e., mutate, select, ggplot, filter) work on vectors of values
 
 ## Is this Tidy Data?
 
-PREGNANCY EXAMPLE
+```{r formative_assessment1, echo=FALSE}
+married <- read.table(text= "married,not_married
+2,3
+3,2", header=T, sep=",", row.names=c("male", "female"))
+
+married %>%
+kable("html")
+```
+
+Hint: 
+
+- What are the variables in this data?
+- What are the rows? 
+- What are the columns?
+- Remember our 3 rules (column = variable, row = observation, cell = value)
+
+## No - it can be tidier!
+
+```{r, echo=FALSE}
+married <- read.table(text= "married,not_married
+2,3
+3,2", header=T, sep=",", row.names=c("male", "female"))
+
+married %>%
+kable("html")
+```
+
+- What are the variables in this data?
+  + sex, marital status, count
+- What are rows? 
+  + **Rows** are **values of a variable, sex** not **observations**
+- What are columns?
+  + **Columns** are **values of a variable, marital status** not **variables**
+
+## A tidier version
+
+```{r}
+married %>% 
+  mutate(sex = row.names(.)) %>% 
+  pivot_longer(-sex, names_to = c('marital_status'), values_to = 'count')
+```
+
+- **rows** are **observations** of counts of people falling into sex X marital status combinations
+- **columns** are **variables** reflecting your key metrics (sex, marital status, count)
 
 ## Which one is Tidy?
 
-THIS 
+LEFT OFF 
+
 
 ## How do I do it?
 
-PIVOT LONGER PIVOT WIDER
+1. Figure out what the variables and observations are
+2. Figure out if you need to you table to be
+   - longer: one variable spread across multiple columns
+   - wider: one observation scattered across multiple rows
 
+- Two key tidyr functions for solving
+  + pivot_longer (previously gather)
+    - makes datasets longer by increasing the number of rows and decreasing the number of columns
+  + pivot_wider  (previously spread)
+    -  "widens" data, increasing the number of columns and decreasing the number of rows
 
-## When variable names are columns
-
-Pew dataset
-
-You TRY with billboards 
-
-FADED EXAMPLE 
-
-
-## When XX are XX
-
-Pew dataset
-
-You TRY with billboards
-NO ASSISTANCE 
-
-
-## Quick check: Why won't this work?!
-
+- Let's try it out! 
+  + Please open the .Rmd file
 
 
 

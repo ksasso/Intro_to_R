@@ -1,0 +1,307 @@
+---
+title: "Tidy Data Lite: Exercises"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, echo = FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE, error = FALSE, warning = FALSE)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(dataAnim)
+library(htmlwidgets)
+library(shiny)
+library(DSR)
+```
+
+## pivot_longer: One variable spread across multiple columns
+
+- Column headers are values, not variables
+
+**The pivot_longer funciton can help!**
+
+```{r}
+datoy_wide
+```
+
+- 3 variables
+  + *Name* stored in rows
+  + *Subject* spread across column names
+  + *Score* stored in cell values
+  
+To tidy we need to use pivot_longer to make the following transformation
+
+Run the following animation 
+
+```{r, echo = FALSE}
+
+ gather_anim(
+     key = 'Subject',
+     value = 'Score',
+     data = datoy_wide,
+     col = c("English","Maths")
+ )
+```
+
+
+- The first arugment is the *data* to reshape *datoy_wide*
+- The second argument describes which *cols* needs to be reshaped, in this case it's *English & Maths*
+- The *names_to* argument gives the name of the variable that will be created from the data stored in the column names, i.e. *Subject*
+- The *values_to* gives the name of the variable that will be created from the data stored in the cell value, i.e. *Score*
+    + Neither the names_to nor the values_to column exists in datoy_wide, so we provide them as character strings surrounded in quotes.
+
+Let's code it!
+
+```{r}
+?pivot_longer
+datoy_wide
+
+```
+
+
+## You try!
+
+The billboard dataset records the billboard rank of songs in the year 2000. It has a form similar to the relig_income data, but the data encoded in the column names is really a number, not a string.
+
+Uncomment the code below and fill in to tidy the billboard data set 
+
+```{r}
+billboard %>% 
+  head()
+
+# billboard %>% 
+#   pivot_longer(cols = , 
+#                names_to = ,
+#                names_prefix = "wk",
+#                values_to = ,
+#                values_drop_na = TRUE)
+# 
+
+
+```
+
+What did
+
+  - values_drop_na do ?
+    + hint: not every song stays in the charts for all 76 weeks
+  - names_preix do ? 
+
+Which of the following would NOT have worked?
+
+1. pivot_longer(data = billboard,cols = starts_with('wk'), names_to = "week", names_prefix = "wk", 
+               values_to = "rank",values_drop_na = TRUE)
+2. pivot_longer(data = billboard,cols = -c(artist:date.entered), names_to = "week", names_prefix = "wk", 
+               values_to = "rank",values_drop_na = TRUE)
+3. pivot_longer(data = billboard, cols = 4:79, names_to = "week", names_prefix = "wk", 
+               values_to = "rank",values_drop_na = TRUE)
+4. pivot_longer(data = billboard, cols = -artist:date.entered, names_to = "week", names_prefix = "wk", 
+               values_to = "rank",values_drop_na = TRUE)
+ 
+What does this add?
+
+```{r}
+billboard %>% 
+  pivot_longer(
+    cols = starts_with("wk"), 
+    names_to = "week", 
+    names_prefix = "wk",
+    names_ptypes = list(week = integer()),
+    values_to = "rank",
+    values_drop_na = TRUE,
+  )
+```
+
+One more
+
+- Tidy the preg data set below:
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
+
+preg
+
+# add your tidying code here 
+```
+
+## pivot_wider: An observation is scattered across multiple rows
+
+- Some values are actually variables (i.e., variables stored in a column)
+  + In this instance, we would use pivot_wider to make tidy data
+  
+```{r, echo = FALSE}
+weather <- readr::read_csv("weather.csv") %>% 
+  pivot_longer(d1:d31, names_to = "day", names_prefix = "d",
+               values_to = "value", values_drop_na = TRUE) 
+weather %>% 
+  head()
+
+```
+
+- Most variables have individuals columns *(id, year,month, day, value)* but two variables
+*(tmax, tmin)* are spread across rows, and stored in the "element" column.
+  + Element is not a variable - it's a column that stores the names of two variables
+  
+- Fixing this requres **pivot_wider** function 
+  + Performs the inverse of **pivot_longer** by spreading the *element* and *value* columns back out into columns
+  
+```{r}
+weather %>% 
+  pivot_wider(names_from = element, values_from = value) %>% 
+  head()
+```
+
+- The first arugment is the *data* to reshape *weather*
+- The second argument,*id_cols* describes which columns that unique identify each observation. The default is usually sufficient (defaults to all columns in the data except for the columns specified in names_from and values_from)
+  + Typically only used when you have an additional variable that is directly related. Can be helpful in cleaning multiple choice data
+- The *names_from* and *values_from* are paired arguments describing which column (or columns) to get the name of the output column *(name_from = element)*, and which column (or columns) to get the cell values from *(values_from = value)*
+  + If values_from contains multiple values, the value will be added to the front of the output column. We will see an example of this in a second
+
+- In practice, relatively rare to need pivot_wider for tidying, but it's often useful for creating summary tables for presentation
+
+Remember we tidied the scores data 
+
+```{r}
+datoy_long
+```
+
+What if we wanted this in wide format for a summary table?
+
+```{r}
+datoy_long
+
+spread_anim(
+  key = "Subject",
+  value = "Score", 
+  data = datoy_long
+)
+```
+
+
+Let's code it!
+
+```{r}
+datoy_long %>% 
+  pivot_wider(names_from = Subject, values_from = Score)
+```
+
+
+## You try!
+
+Tidy the us_rent_income data set 
+  - contains information about median income and rent for each state in the US for 2017 (from the American Community Survey, retrieved with the tidycensus package).
+
+Uncomment the code below and fill in to tidy the us_rent_income data set
+
+Hint: both *estimte* and *moe* are value columns
+
+```{r}
+head(us_rent_income)
+?us_rent_income
+
+us_rent_income %>% 
+  pivot_wider(
+    names_from = , 
+    values_from = c('estimate','moe')
+  )
+
+us_rent_income %>% 
+  pivot_wider(
+    names_from = variable, 
+    values_from = c('estimate','moe')
+  )
+```
+
+One More
+
+Tidy "table2" using pivot_wider
+
+```{r}
+table2 %>% 
+  head()
+
+table2 %>% 
+  pivot_wider(names_from = key, values_from = value)
+
+```
+
+
+## Putting it all together
+
+Load & examine the following dataset 
+
+```{r}
+stocks <- tibble(
+  time = as.Date('2009-01-01') + 0:9,
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
+
+stocks
+```
+
+Make a new dataset "tidy_stocks" by using the appropriate pivot function to tidy
+
+```{r}
+# insert tidying code here
+
+```
+
+After you've tidied stocks, make another table "untidied_stocks" by putting "tidy_stocks"
+back in its original format:
+
+```{r}
+head(stocks)
+```
+
+
+```{r}
+#insert code that will convert your new "tidy_stocks" data set back to the "stocks" data set
+
+
+```
+
+
+## When things are a real mess!
+
+- pivot_longer:
+
+  + Many variables in column names
+  + Multiple observations per row
+  + Duplicate column names
+  + Columns and rows are values of variables
+
+- pivot_wider: 
+
+  + filling in missing values
+  + for aggregationg/summary table creation
+  + column names from multiple variables
+  + multi-choice data and id_cols
+
+- pivot_longer + pivot_wider
+
+
+- We will dive in after break!
+
+## How am I doing?
+
+Content | Presentation
+------- | ------------
+   +    |     +
+   -    |     -
+   
+
+   
+   
+   
+   
